@@ -2,9 +2,12 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
-from db.models import Booking, FitnessClass
-from schemas import BookingCreate
-from crud.fitness_class import has_available_slots, decrement_available_slots
+from app.models import Booking, FitnessClass
+from app.schemas import BookingCreate
+from app.repositories.fitness_class import (
+    has_available_slots,
+    decrement_available_slots,
+)
 
 
 class ClassNotFoundError(Exception):
