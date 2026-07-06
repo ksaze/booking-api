@@ -1,5 +1,5 @@
 from typing import Union
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from .booking import Booking
 import typing as t
 
@@ -8,9 +8,7 @@ class UserBase(BaseModel):
     email: EmailStr
     first_name: Union[str, None] = None
     last_name: Union[str, None] = None
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(model_config=ConfigDict(from_attributes=True))
 
 
 class UserOut(UserBase):
@@ -26,15 +24,11 @@ class UserEdit(UserBase):
     first_name: t.Optional[str] = None
     last_name: t.Optional[str] = None
     password: t.Optional[str] = None
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(model_config=ConfigDict(from_attributes=True))
 
 
 class User(UserBase):
     id: int
     is_active: bool
     bookings: t.List[Booking] = None
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(model_config=ConfigDict(from_attributes=True))

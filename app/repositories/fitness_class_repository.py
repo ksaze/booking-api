@@ -2,8 +2,8 @@ from datetime import datetime
 from typing import List, Optional
 from sqlalchemy.orm import Session
 
-from app.models import FitnessClass
-from app.schemas import FitnessClassCreate, FitnessClassEdit
+from app.models.fitness_class import FitnessClass
+from app.schemas.fitness_class import FitnessClassCreate, FitnessClassEdit
 
 
 def get_fitness_class(db: Session, class_id: int) -> Optional[FitnessClass]:

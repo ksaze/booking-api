@@ -7,7 +7,7 @@ from sqlalchemy import (
     DateTime,
 )
 from sqlalchemy.orm import relationship
-from .session import Base
+from app.db.session import Base
 
 
 class User(Base):

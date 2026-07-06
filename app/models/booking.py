@@ -9,7 +9,7 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
-from .session import Base
+from app.db.session import Base
 
 
 class Booking(Base):

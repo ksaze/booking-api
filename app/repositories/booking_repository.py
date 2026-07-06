@@ -2,9 +2,10 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
-from app.models import Booking, FitnessClass
-from app.schemas import BookingCreate
-from app.repositories.fitness_class import (
+from app.models.booking import Booking
+from app.models.fitness_class import FitnessClass
+from app.schemas.booking import BookingCreate
+from app.repositories.fitness_class_repository import (
     has_available_slots,
     decrement_available_slots,
 )

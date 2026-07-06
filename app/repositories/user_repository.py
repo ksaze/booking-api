@@ -1,19 +1,20 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
 
-from app.models import User
-from app.schemas import UserCreate, UserEdit
+from app.models.user import User
+from app.schemas.user import UserCreate, UserEdit
+from pwdlib import PasswordHash
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+password_hash = PasswordHash.recommended()
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return password_hash.hash(password)
 
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+def verify_password(password: str, hashed_password: str) -> bool:
+    return password_hash.verify(password, hashed_password)
 
 
 def get_user(db: Session, user_id: int) -> Optional[User]:
@@ -42,7 +43,7 @@ def create_user(db: Session, obj_in: UserCreate) -> User:
 
 
 def update_user(db: Session, db_obj: User, obj_in: UserEdit) -> User:
-    update_data = obj_in.dict(exclude_unset=True)
+    update_data = obj_in.model_dump(exclude_unset=True)
     if "password" in update_data:
         db_obj.hashed_password = hash_password(update_data.pop("password"))
     for field, value in update_data.items():

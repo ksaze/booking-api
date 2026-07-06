@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Union, TYPE_CHECKING
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 import typing as t
 
 # FitnessClass and User both import Booking directly
@@ -16,9 +16,7 @@ class BookingBase(BaseModel):
     class_id: int
     client_name: str
     client_email: EmailStr
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict()
 
 
 class BookingOut(BookingBase):
@@ -33,9 +31,7 @@ class BookingEdit(BookingBase):
     class_id: t.Optional[int] = None
     client_name: t.Optional[str] = None
     client_email: t.Optional[EmailStr] = None
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(model_config=ConfigDict(from_attributes=True))
 
 
 class Booking(BookingBase):
@@ -45,6 +41,4 @@ class Booking(BookingBase):
     is_active: bool
     fitness_class: Union["FitnessClass", None] = None
     user: Union["User", None] = None
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(model_config=ConfigDict(from_attributes=True))

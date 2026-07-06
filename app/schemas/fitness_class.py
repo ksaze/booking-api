@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from .booking import Booking
 import typing as t
 
@@ -9,9 +9,7 @@ class FitnessClassBase(BaseModel):
     dateTime: datetime
     instructor: str
     availableSlots: int
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict()
 
 
 class FitnessClassOut(FitnessClassBase):
@@ -27,15 +25,11 @@ class FitnessClassEdit(FitnessClassBase):
     dateTime: t.Optional[datetime] = None
     instructor: t.Optional[str] = None
     availableSlots: t.Optional[int] = None
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict()
 
 
 class FitnessClass(FitnessClassBase):
     id: int
     is_active: bool
     bookings: t.List[Booking] = None
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict()
