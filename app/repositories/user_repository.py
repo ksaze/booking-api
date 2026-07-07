@@ -3,18 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.models.user import User
 from app.schemas.user import UserCreate, UserEdit
-from pwdlib import PasswordHash
-
-
-password_hash = PasswordHash.recommended()
-
-
-def hash_password(password: str) -> str:
-    return password_hash.hash(password)
-
-
-def verify_password(password: str, hashed_password: str) -> bool:
-    return password_hash.verify(password, hashed_password)
+from app.core.security import hash_password, verify_password
 
 
 def get_user(db: Session, user_id: int) -> Optional[User]:
