@@ -2,18 +2,12 @@ from datetime import UTC, datetime, timedelta
 from typing import Optional
 
 from jose import JWTError, jwt
-from pydantic import BaseModel
 from pwdlib import PasswordHash
 
 from app.core.config import settings
+from app.schemas.token import TokenPayload
 
 password_hash = PasswordHash.recommended()
-
-
-class TokenPayload(BaseModel):
-    sub: str
-    type: str
-    exp: int
 
 
 class TokenError(Exception):
