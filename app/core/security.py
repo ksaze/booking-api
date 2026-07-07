@@ -48,6 +48,15 @@ def create_access_token(
     )
 
 
+def refresh_access_token(refresh_token: str) -> str:
+    payload = decode_token(
+        refresh_token,
+        expected_type="refresh",
+    )
+
+    return create_access_token(payload.sub)
+
+
 def create_refresh_token(
     subject: str,
     expires_delta: Optional[timedelta] = None,

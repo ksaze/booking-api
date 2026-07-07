@@ -11,6 +11,7 @@ def test_create_user_hashes_password(db):
     user = create_user(
         db,
         UserCreate(
+            name="abc",
             email="alice@example.com",
             password="password123",
         ),
@@ -26,15 +27,16 @@ def test_authenticate_user_success(db):
     create_user(
         db,
         UserCreate(
+            name="abc",
             email="alice@example.com",
-            password="secret",
+            password="secret01",
         ),
     )
 
     user = authenticate_user(
         db,
         "alice@example.com",
-        "secret",
+        "secret01",
     )
 
     assert user is not None
@@ -44,8 +46,9 @@ def test_authenticate_user_bad_password(db):
     create_user(
         db,
         UserCreate(
+            name="alice",
             email="alice@example.com",
-            password="secret",
+            password="secret01",
         ),
     )
 
@@ -53,7 +56,7 @@ def test_authenticate_user_bad_password(db):
         authenticate_user(
             db,
             "alice@example.com",
-            "wrong",
+            "wrong01",
         )
         is None
     )
@@ -63,8 +66,9 @@ def test_update_password(db):
     user = create_user(
         db,
         UserCreate(
+            name="alice",
             email="alice@example.com",
-            password="oldpass",
+            password="oldpass1",
         ),
     )
 
@@ -73,7 +77,7 @@ def test_update_password(db):
     user = update_user(
         db,
         user,
-        UserEdit(password="newpass"),
+        UserEdit(password="newpass1"),
     )
 
     assert user.hashed_password != old_hash

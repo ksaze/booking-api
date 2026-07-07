@@ -21,8 +21,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 100) -> List[User]:
 def create_user(db: Session, obj_in: UserCreate) -> User:
     db_obj = User(
         email=obj_in.email,
-        first_name=getattr(obj_in, "first_name", None),
-        last_name=getattr(obj_in, "last_name", None),
+        name=obj_in.name,
         hashed_password=hash_password(obj_in.password),
     )
     db.add(db_obj)

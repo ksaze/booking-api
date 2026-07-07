@@ -19,8 +19,9 @@ def create_fixture(db):
     user = create_user(
         db,
         UserCreate(
+            name="abc",
             email="user@test.com",
-            password="secret",
+            password="secret01",
         ),
     )
 

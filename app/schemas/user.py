@@ -1,14 +1,14 @@
-from typing import Union
-from pydantic import BaseModel, EmailStr, ConfigDict
-from .booking import Booking
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 import typing as t
+
+from .booking import Booking
 
 
 class UserBase(BaseModel):
+    name: str = Field(min_length=2)
     email: EmailStr
-    first_name: Union[str, None] = None
-    last_name: Union[str, None] = None
-    model_config = ConfigDict(model_config=ConfigDict(from_attributes=True))
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserOut(UserBase):
@@ -16,19 +16,20 @@ class UserOut(UserBase):
 
 
 class UserCreate(UserBase):
-    password: str
+    password: str = Field(min_length=8)
 
 
-class UserEdit(UserBase):
+class UserEdit(BaseModel):
+    name: t.Optional[str] = Field(default=None, min_length=2)
     email: t.Optional[EmailStr] = None
-    first_name: t.Optional[str] = None
-    last_name: t.Optional[str] = None
-    password: t.Optional[str] = None
-    model_config = ConfigDict(model_config=ConfigDict(from_attributes=True))
+    password: t.Optional[str] = Field(default=None, min_length=8)
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class User(UserBase):
     id: int
     is_active: bool
-    bookings: t.List[Booking] = None
-    model_config = ConfigDict(model_config=ConfigDict(from_attributes=True))
+    bookings: list[Booking] = []
+
+    model_config = ConfigDict(from_attributes=True)
