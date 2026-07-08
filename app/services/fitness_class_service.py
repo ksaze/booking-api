@@ -1,3 +1,10 @@
+"""
+Business logic for fitness class management.
+
+Handles class creation and listing upcoming classes, while normalising
+timezone to IST for the database and back to UTC ISO 8601
+"""
+
 from sqlalchemy.orm import Session
 
 from app.repositories.fitness_class_repository import (
@@ -20,6 +27,20 @@ def create_class(
     db: Session,
     class_in: FitnessClassCreate,
 ) -> FitnessClassOut:
+    """
+    Creates a new fitness class
+
+    Args:
+        db: Database session
+        class_in: Class information
+
+    Raises:
+        InvalidClassDateError: Class created for a datetime in the past
+        InvalidSlotCountError: Numbers of slots are less than or equal to zero
+
+    Returns:
+        FitnessClassOut object containing information about the created class
+    """
     if class_in.available_slots <= 0:
         raise InvalidSlotCountError()
 
@@ -36,5 +57,14 @@ def create_class(
 def list_upcoming(
     db: Session,
 ) -> list[FitnessClassOut]:
+    """
+    Lists all upcoming fitness classes
+
+    Args:
+        db: Database session
+
+    Returns:
+        List of FitnessClassOut objects
+    """
     classes = get_upcoming_classes(db)
     return [FitnessClassOut.model_validate(cls) for cls in classes]

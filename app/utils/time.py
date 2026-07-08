@@ -16,7 +16,3 @@ def to_ist(dt: datetime) -> datetime:
         raise ValueError("Datetime must include timezone information.")
 
     return dt.astimezone(IST)
-
-
-def to_iso8601(dt: datetime) -> str:
-    return dt.isoformat()

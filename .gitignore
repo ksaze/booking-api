@@ -1,5 +1,6 @@
 # Application specific
 log.txt
+fitness_studio.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
