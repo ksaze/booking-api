@@ -22,6 +22,10 @@ class InvalidCredentialsError(Exception):
     pass
 
 
+class InvalidRefreshTokenError(Exception):
+    pass
+
+
 def signup(db: Session, user_in: UserCreate):
     if get_user_by_email(db, user_in.email):
         raise UserAlreadyExistsError()
@@ -52,7 +56,12 @@ def refresh(refresh_token: str) -> Token:
         expected_type="refresh",
     )
 
+    user_id = int(payload["sub"])
+
+    if user_id is None:
+        raise InvalidRefreshTokenError()
+
     return Token(
-        access_token=create_access_token(payload.sub),
-        refresh_token=create_refresh_token(payload.sub),
+        access_token=create_access_token(user_id),
+        refresh_token=create_refresh_token(user_id),
     )
