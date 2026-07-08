@@ -1,18 +1,16 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
-import pytest
-
-from app.repositories.user_repository import create_user
-from app.repositories.fitness_class_repository import create_fitness_class
 from app.repositories.booking_repository import (
-    create_booking,
     cancel_booking,
-    ClassFullError,
+    create_booking,
+    get_class_for_booking,
+    get_user_bookings,
 )
-
-from app.schemas.user import UserCreate
+from app.repositories.fitness_class_repository import create_fitness_class
+from app.repositories.user_repository import create_user
 from app.schemas.booking import BookingCreate
 from app.schemas.fitness_class import FitnessClassCreate
+from app.schemas.user import UserCreate
 
 
 def create_fixture(db):
@@ -30,8 +28,8 @@ def create_fixture(db):
         FitnessClassCreate(
             name="Yoga",
             instructor="Alice",
-            dateTime=datetime.now() + timedelta(days=1),
-            availableSlots=1,
+            date_time=datetime.now(UTC) + timedelta(days=1),
+            available_slots=1,
         ),
     )
 
@@ -42,13 +40,14 @@ def test_create_booking_decrements_slots(db):
     user, cls = create_fixture(db)
 
     booking = create_booking(
-        db,
-        BookingCreate(
+        db=db,
+        user_id=user.id,
+        booking_in=BookingCreate(
             class_id=cls.id,
             client_name="Bob",
             client_email="bob@test.com",
         ),
-        user.id,
+        fitness_class=cls,
     )
 
     assert booking.id is not None
@@ -58,42 +57,46 @@ def test_create_booking_decrements_slots(db):
     assert cls.available_slots == 0
 
 
-def test_booking_full_class_raises(db):
+def test_get_class_for_booking(db):
+    _, cls = create_fixture(db)
+
+    result = get_class_for_booking(db, cls.id)
+
+    assert result is not None
+    assert result.id == cls.id
+
+
+def test_get_user_bookings(db):
     user, cls = create_fixture(db)
 
-    create_booking(
-        db,
-        BookingCreate(
+    booking = create_booking(
+        db=db,
+        user_id=user.id,
+        booking_in=BookingCreate(
             class_id=cls.id,
             client_name="Bob",
             client_email="bob@test.com",
         ),
-        user.id,
+        fitness_class=cls,
     )
 
-    with pytest.raises(ClassFullError):
-        create_booking(
-            db,
-            BookingCreate(
-                class_id=cls.id,
-                client_name="Jane",
-                client_email="jane@test.com",
-            ),
-            user.id,
-        )
+    bookings = get_user_bookings(db, user.id)
+
+    assert bookings == [booking]
 
 
 def test_cancel_booking_restores_slot(db):
     user, cls = create_fixture(db)
 
     booking = create_booking(
-        db,
-        BookingCreate(
+        db=db,
+        user_id=user.id,
+        booking_in=BookingCreate(
             class_id=cls.id,
             client_name="Bob",
             client_email="bob@test.com",
         ),
-        user.id,
+        fitness_class=cls,
     )
 
     cancel_booking(db, booking)

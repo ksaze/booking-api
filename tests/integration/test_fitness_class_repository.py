@@ -1,8 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 from app.repositories.fitness_class_repository import (
     create_fitness_class,
-    get_fitness_classes,
+    get_upcoming_classes,
 )
 
 from app.schemas.fitness_class import FitnessClassCreate
@@ -14,8 +14,8 @@ def test_create_class(db):
         FitnessClassCreate(
             name="Yoga",
             instructor="Alice",
-            dateTime=datetime.now() + timedelta(days=1),
-            availableSlots=15,
+            date_time=datetime.now(UTC) + timedelta(days=1),
+            available_slots=15,
         ),
     )
 
@@ -30,11 +30,11 @@ def test_get_upcoming_classes(db):
         FitnessClassCreate(
             name="Yoga",
             instructor="Alice",
-            dateTime=datetime.now() + timedelta(days=2),
-            availableSlots=10,
+            date_time=datetime.now(UTC) + timedelta(days=2),
+            available_slots=10,
         ),
     )
 
-    classes = get_fitness_classes(db)
+    classes = get_upcoming_classes(db)
 
     assert len(classes) == 1

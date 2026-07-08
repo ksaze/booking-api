@@ -1,35 +1,76 @@
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
-from .booking import Booking
 import typing as t
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class FitnessClassBase(BaseModel):
     name: str
-    dateTime: datetime
+    date_time: datetime = Field(
+        validation_alias="dateTime",
+        serialization_alias="dateTime",
+    )
     instructor: str
-    availableSlots: int
-    model_config = ConfigDict()
+    available_slots: int = Field(
+        validation_alias="availableSlots",
+        serialization_alias="availableSlots",
+    )
 
-
-class FitnessClassOut(FitnessClassBase):
-    pass
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
+        serialize_by_alias=True,
+    )
 
 
 class FitnessClassCreate(FitnessClassBase):
     pass
 
 
-class FitnessClassEdit(FitnessClassBase):
+class FitnessClassEdit(BaseModel):
     name: t.Optional[str] = None
-    dateTime: t.Optional[datetime] = None
+    date_time: t.Optional[datetime] = Field(
+        default=None,
+        validation_alias="dateTime",
+        serialization_alias="dateTime",
+    )
     instructor: t.Optional[str] = None
-    availableSlots: t.Optional[int] = None
-    model_config = ConfigDict()
+    available_slots: t.Optional[int] = Field(
+        default=None,
+        validation_alias="availableSlots",
+        serialization_alias="availableSlots",
+    )
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True,
+        validate_by_name=True,
+        validate_by_alias=True,
+        serialize_by_alias=True,
+    )
 
 
 class FitnessClass(FitnessClassBase):
     id: int
     is_active: bool
-    bookings: t.List[Booking] = None
-    model_config = ConfigDict()
+
+
+class FitnessClassOut(BaseModel):
+    id: int
+    name: str
+    date_time: datetime = Field(
+        serialization_alias="dateTime",
+    )
+    instructor: str
+    available_slots: int = Field(
+        serialization_alias="availableSlots",
+    )
+    is_active: bool
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True,
+        serialize_by_alias=True,
+    )

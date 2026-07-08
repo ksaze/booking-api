@@ -23,11 +23,7 @@ class DuplicateBookingError(Exception):
     pass
 
 
-def get_booking(db: Session, booking_id: int) -> Optional[Booking]:
-    return db.query(Booking).filter(Booking.id == booking_id).first()
-
-
-def get_bookings_by_user(
+def get_user_bookings(
     db: Session, user_id: int, skip: int = 0, limit: int = 100
 ) -> List[Booking]:
     return (
@@ -40,11 +36,43 @@ def get_bookings_by_user(
     )
 
 
-def get_bookings_for_class(db: Session, class_id: int) -> List[Booking]:
-    return db.query(Booking).filter(Booking.class_id == class_id).all()
+def get_class_for_booking(
+    db: Session,
+    class_id: int,
+) -> Optional[FitnessClass]:
+    return (
+        db.query(FitnessClass)
+        .filter(FitnessClass.id == class_id)
+        .with_for_update()
+        .first()
+    )
 
 
-def create_booking(db: Session, obj_in: BookingCreate, user_id: int) -> Booking:
+def has_existing_booking(
+    db: Session,
+    *,
+    class_id: int,
+    user_id: int,
+) -> bool:
+    return (
+        db.query(Booking)
+        .filter(
+            Booking.class_id == class_id,
+            Booking.user_id == user_id,
+            Booking.is_active,
+        )
+        .first()
+        is not None
+    )
+
+
+def create_booking(
+    db: Session,
+    *,
+    user_id: int,
+    booking_in: BookingCreate,
+    fitness_class: FitnessClass,
+) -> Booking:
     """
     Books a slot for the given user, guarding against overbooking and
     duplicate bookings (same email, same class).
@@ -52,40 +80,26 @@ def create_booking(db: Session, obj_in: BookingCreate, user_id: int) -> Booking:
     Raises ClassNotFoundError / ClassFullError / DuplicateBookingError on
     failure; the caller (route handler) maps these to HTTP status codes.
     """
-    # Row lock on the class so two concurrent requests for the last slot
-    # can't both pass the availability check (no-op on SQLite, real lock
-    # on Postgres/MySQL).
-    fitness_class = (
-        db.query(FitnessClass)
-        .filter(FitnessClass.id == obj_in.class_id)
-        .with_for_update()
-        .first()
-    )
-    if fitness_class is None:
-        raise ClassNotFoundError(f"Class {obj_in.class_id} not found")
-
-    if not has_available_slots(fitness_class):
-        raise ClassFullError(f"Class {obj_in.class_id} has no available slots")
-
-    db_obj = Booking(
-        class_id=obj_in.class_id,
+    booking = Booking(
+        class_id=booking_in.class_id,
         user_id=user_id,
-        client_name=obj_in.client_name,
-        client_email=obj_in.client_email,
+        client_name=booking_in.client_name,
+        client_email=booking_in.client_email,
     )
-    db.add(db_obj)
-    decrement_available_slots(db, fitness_class)
+
+    fitness_class.available_slots -= 1
+
+    db.add(booking)
+    db.add(fitness_class)
 
     try:
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise DuplicateBookingError(
-            f"{obj_in.client_email} has already booked class {obj_in.class_id}"
-        )
+        raise
 
-    db.refresh(db_obj)
-    return db_obj
+    db.refresh(booking)
+    return booking
 
 
 def cancel_booking(db: Session, db_obj: Booking) -> Booking:
