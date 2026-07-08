@@ -1,10 +1,9 @@
 from app.repositories.user_repository import (
     create_user,
     authenticate_user,
-    update_user,
 )
 
-from app.schemas.user import UserCreate, UserEdit
+from app.schemas.user import UserCreate
 
 
 def test_create_user_hashes_password(db):
@@ -60,24 +59,3 @@ def test_authenticate_user_bad_password(db):
         )
         is None
     )
-
-
-def test_update_password(db):
-    user = create_user(
-        db,
-        UserCreate(
-            name="alice",
-            email="alice@example.com",
-            password="oldpass1",
-        ),
-    )
-
-    old_hash = user.hashed_password
-
-    user = update_user(
-        db,
-        user,
-        UserEdit(password="newpass1"),
-    )
-
-    assert user.hashed_password != old_hash

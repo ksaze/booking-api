@@ -1,7 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
 from app.repositories.booking_repository import (
-    cancel_booking,
     create_booking,
     get_class_for_booking,
     get_user_bookings,
@@ -83,25 +82,3 @@ def test_get_user_bookings(db):
     bookings = get_user_bookings(db, user.id)
 
     assert bookings == [booking]
-
-
-def test_cancel_booking_restores_slot(db):
-    user, cls = create_fixture(db)
-
-    booking = create_booking(
-        db=db,
-        user_id=user.id,
-        booking_in=BookingCreate(
-            class_id=cls.id,
-            client_name="Bob",
-            client_email="bob@test.com",
-        ),
-        fitness_class=cls,
-    )
-
-    cancel_booking(db, booking)
-
-    db.refresh(cls)
-
-    assert cls.available_slots == 1
-    assert booking.is_active is False

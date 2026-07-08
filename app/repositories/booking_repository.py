@@ -5,22 +5,6 @@ from sqlalchemy.exc import IntegrityError
 from app.models.booking import Booking
 from app.models.fitness_class import FitnessClass
 from app.schemas.booking import BookingCreate
-from app.repositories.fitness_class_repository import (
-    has_available_slots,
-    decrement_available_slots,
-)
-
-
-class ClassNotFoundError(Exception):
-    pass
-
-
-class ClassFullError(Exception):
-    pass
-
-
-class DuplicateBookingError(Exception):
-    pass
 
 
 def get_user_bookings(
@@ -100,15 +84,3 @@ def create_booking(
 
     db.refresh(booking)
     return booking
-
-
-def cancel_booking(db: Session, db_obj: Booking) -> Booking:
-    """Marks a booking inactive and returns the slot to the class."""
-    if db_obj.is_active:
-        db_obj.fitness_class.available_slots += 1
-        db.add(db_obj.fitness_class)
-    db_obj.is_active = False
-    db.add(db_obj)
-    db.commit()
-    db.refresh(db_obj)
-    return db_obj

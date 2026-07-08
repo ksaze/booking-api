@@ -1,8 +1,8 @@
-from typing import List, Optional
+from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.models.user import User
-from app.schemas.user import UserCreate, UserEdit
+from app.schemas.user import UserCreate
 from app.core.security import hash_password, verify_password
 
 
@@ -12,10 +12,6 @@ def get_user(db: Session, user_id: int) -> Optional[User]:
 
 def get_user_by_email(db: Session, email: str) -> Optional[User]:
     return db.query(User).filter(User.email == email).first()
-
-
-def get_users(db: Session, skip: int = 0, limit: int = 100) -> List[User]:
-    return db.query(User).offset(skip).limit(limit).all()
 
 
 def create_user(db: Session, obj_in: UserCreate) -> User:
@@ -30,28 +26,8 @@ def create_user(db: Session, obj_in: UserCreate) -> User:
     return db_obj
 
 
-def update_user(db: Session, db_obj: User, obj_in: UserEdit) -> User:
-    update_data = obj_in.model_dump(exclude_unset=True)
-    if "password" in update_data:
-        db_obj.hashed_password = hash_password(update_data.pop("password"))
-    for field, value in update_data.items():
-        setattr(db_obj, field, value)
-    db.add(db_obj)
-    db.commit()
-    db.refresh(db_obj)
-    return db_obj
-
-
 def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
     user = get_user_by_email(db, email)
     if not user or not verify_password(password, user.hashed_password):
         return None
     return user
-
-
-def deactivate_user(db: Session, db_obj: User) -> User:
-    db_obj.is_active = False
-    db.add(db_obj)
-    db.commit()
-    db.refresh(db_obj)
-    return db_obj
