@@ -1,6 +1,6 @@
 import logging
 
-from core.celery_app import celery_app
+from app.core.celery_app import celery_app
 
 logger = logging.getLogger("fitness_studio.tasks")
 

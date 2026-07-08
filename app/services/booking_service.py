@@ -35,15 +35,16 @@ def book(
     if fitness_class is None:
         raise ClassNotFoundError()
 
-    if fitness_class.available_slots <= 0:
-        raise ClassFullError()
-
+    # Priority given to already booked exception over class full
     if has_existing_booking(
         db,
         class_id=booking_in.class_id,
         user_id=user_id,
     ):
         raise DuplicateBookingError()
+
+    if fitness_class.available_slots <= 0:
+        raise ClassFullError()
 
     try:
         booking = create_booking(

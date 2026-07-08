@@ -6,15 +6,12 @@ class BookingBase(BaseModel):
     class_id: int
     client_name: str
     client_email: EmailStr
-    model_config = ConfigDict()
+    model_config = ConfigDict(from_attributes=True)
 
 
 class BookingOut(BookingBase):
     id: int
     booked_at: datetime
-    class_id: int
-    client_name: str
-    client_email: str
 
 
 class BookingCreate(BookingBase):

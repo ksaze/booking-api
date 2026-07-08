@@ -1,11 +1,10 @@
-from datetime import datetime, UTC
+from datetime import datetime
 from typing import List
 from sqlalchemy.orm import Session
 
 from app.models.fitness_class import FitnessClass
 from app.schemas.fitness_class import (
     FitnessClassCreate,
-    FitnessClassOut,
 )
 from app.utils.time import to_ist
 
@@ -33,27 +32,3 @@ def create_fitness_class(db: Session, obj_in: FitnessClassCreate) -> FitnessClas
     db.commit()
     db.refresh(db_obj)
     return db_obj
-
-
-def has_available_slots(fitness_class: FitnessClass) -> bool:
-    return fitness_class.available_slots > 0
-
-
-def decrement_available_slots(db: Session, db_obj: FitnessClass) -> FitnessClass:
-    """Caller is responsible for checking has_available_slots() first."""
-    db_obj.available_slots -= 1
-    db.add(db_obj)
-    return db_obj
-
-
-def serialize_class(
-    fitness_class: FitnessClass,
-    timezone: str | None = None,
-) -> FitnessClassOut:
-    return FitnessClassOut(
-        id=fitness_class.id,
-        name=fitness_class.name,
-        instructor=fitness_class.instructor,
-        available_slots=fitness_class.available_slots,
-        date_time=fitness_class.date_time.astimezone(UTC),
-    )

@@ -21,7 +21,7 @@ class Booking(Base):
     client_name = Column(String, nullable=False)
     client_email = Column(String, nullable=False, index=True)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.now)
+    booked_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     # foreignKey relations
     class_id = Column(Integer, ForeignKey("fitness_classes.id"), nullable=False)
